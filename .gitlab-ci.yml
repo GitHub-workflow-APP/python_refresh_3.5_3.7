@@ -1,0 +1,24 @@
+image: docker-ro.laputa.veracode.io/agora/buildbox:centos7-m2-gradle-latest
+
+
+stages:
+    - build
+    - publish
+    
+
+python3-build:
+    stage: build
+    artifacts:
+        paths:
+          - testcases/*.zip
+    
+    script:
+        - cd testcases
+        - zip -r research-testcases.zip .
+        #- find . -type d -not -name '.*' -maxdepth 1 -exec zip -r {}.zip {} \;
+    
+python3-publish:
+    stage: publish
+    script:
+        - cd testcases
+        - find . -name '*.zip' -exec curl https://maven.laputa.veracode.io/api/object/snapshots/com/veracode/research/python3_refresh_3.5_3.7/ --upload-file {} \;
